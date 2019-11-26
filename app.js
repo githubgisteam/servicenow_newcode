@@ -159,7 +159,7 @@ app.post('/snow', function (req, response) {
 						channel: 'azure',
 						text:  'Ticket Number '+res[i].number + " status is " +res[i].incident_state 
 					});  
-                // response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
+                response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
                 }
 
             });
