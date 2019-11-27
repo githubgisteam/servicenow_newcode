@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for
  * license information.
@@ -24,7 +24,7 @@ const ServiceNow = new sn('dev54863', 'indus_user', 'Demo*123');
 /** end connection  from servicenow*/
 
 /**pass incoming webhook to send messege to slack from azure */
-var MY_SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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";
+var MY_SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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";
 var slack = require('slack-notify')(MY_SLACK_WEBHOOK_URL);
 
 
