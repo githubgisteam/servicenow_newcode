@@ -10,8 +10,6 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json());
 
-var arrayTktList = [];
-
 /**set port using env variable for server */
  var port = process.env.PORT || 3000;
 	app.listen(port, "0.0.0.0", function () {
@@ -33,15 +31,10 @@ var slack = require('slack-notify')(MY_SLACK_WEBHOOK_URL);
 ///////////////////////////////////////////
 //     API for connection from servicenow ticket//
 ///////////////////////////////////////////
-//app.get('/', function (req, response) {
 app.post('/snow', function (req, response) {
-
-    
  
-		//console.log("Display name ", req.body.queryResult.intent.displayName);
+		console.log("Display name ", req.body.queryResult.intent.displayName);
         switch (req.body.queryResult.intent.displayName) {			      		  
-    //var swCase ='tktlist';
-    //switch (swCase) {			      		  
 			
 		/**Create new ticket in service now */
         case "createnewticketservicenow":
@@ -142,7 +135,7 @@ app.post('/snow', function (req, response) {
                 response.send(JSON.stringify({ "fulfillmentText": "Your ticket number: " + ticketnuber + " is updated successfully with urgency " + geturgency }));
             }); 
             break;
-		case "tktlist":
+			 case "tktlist":
             const fieldsdata = [
                 'number',
                 'short_description',
@@ -160,27 +153,18 @@ app.post('/snow', function (req, response) {
 
             ServiceNow.getTableData(fieldsdata, filtersdata, 'incident', res => {
 				console.log("data", res)
+				response.setHeader('Content-Type', 'text/plain');
                 for (var i = 0; i < res.length; i++) {
                  console.log("data is here", res[i].number +"  && urgency is "+ res[i].incident_state);
-				 /*slack.send({				  
+				 slack.send({				  
 						channel: 'azure',
 						text:  'Ticket Number '+res[i].number + " status is " +res[i].incident_state 
-					});  */
-                //response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
-
-                    arrayTktList.push("Ticket number: " + res[i].number + " and urgency " + res[i].urgency +" ");
+					});  
+                // response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
+				response.write(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
                 }
-                //response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
-                /*var arrList = JSON.stringify(arrayTktList);
-                var brk = arrList.split('~');
-                var resArray = brk.join(" <br> ");
-                console.log("<br><br>"+resArray);*/
-                //response.send(JSON.stringify(resArray));
-                slack.send({				  
-                    channel: 'azure',
-                    text:  arrayTktList
-                });  
-                response.send(JSON.stringify(arrayTktList));
+				response.end();
+
             });
             break;
 			
