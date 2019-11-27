@@ -10,7 +10,7 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json());
 
-//let arrayTktList = [];
+let arrayTktList = [];
 
 /**set port using env variable for server */
  var port = process.env.PORT || 3000;
@@ -38,7 +38,7 @@ app.post('/snow', function (req, response) {
 
     //var swCase ='tktlist';
  
-		console.log("Display name ", req.body.queryResult.intent.displayName);
+		//console.log("Display name ", req.body.queryResult.intent.displayName);
         switch (req.body.queryResult.intent.displayName) {			      		  
     //switch (swCase) {			      		  
 			
@@ -160,13 +160,21 @@ app.post('/snow', function (req, response) {
             ServiceNow.getTableData(fieldsdata, filtersdata, 'incident', res => {
 				console.log("data", res)
                 for (var i = 0; i < res.length; i++) {
-                 //console.log("data is here", res[i].number +"  && urgency is "+ res[i].incident_state);
+                 console.log("data is here", res[i].number +"  && urgency is "+ res[i].incident_state);
 				 slack.send({				  
 						channel: 'azure',
 						text:  'Ticket Number '+res[i].number + " status is " +res[i].incident_state 
 					});  
                 //response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
+
+                    arrayTktList.push("Ticket number: " + res[i].number + " and urgency " + res[i].urgency+"~");
                 }
+                //response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
+                var arrList = JSON.stringify(arrayTktList);
+                var brk = arrList.split('~');
+                var resArray = brk.join(" <br> ");
+                console.log("<br><br>"+resArray);
+                response.send(JSON.stringify(resArray));
             });
             break;
 			
