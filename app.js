@@ -10,9 +10,6 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json());
 
-//var arrayTktList = [];
-let ress;
-
 /**set port using env variable for server */
  var port = process.env.PORT || 3000;
 	app.listen(port, "0.0.0.0", function () {
@@ -27,22 +24,17 @@ const ServiceNow = new sn('dev54863', 'indus_user', 'Demo*123');
 /** end connection  from servicenow*/
 
 /**pass incoming webhook to send messege to slack from azure */
-var MY_SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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";
+var MY_SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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";
 var slack = require('slack-notify')(MY_SLACK_WEBHOOK_URL);
 
 
 ///////////////////////////////////////////
 //     API for connection from servicenow ticket//
 ///////////////////////////////////////////
-app.get('/', function (req, response, next) {
-//app.post('/snow', function (req, response) {
-
-    
+app.post('/snow', function (req, response) {
  
-		//console.log("Display name ", req.body.queryResult.intent.displayName);
-        //switch (req.body.queryResult.intent.displayName) {			      		  
-    var swCase ='tktlist';
-    switch (swCase) {			      		  
+		console.log("Display name ", req.body.queryResult.intent.displayName);
+        switch (req.body.queryResult.intent.displayName) {			      		  
 			
 		/**Create new ticket in service now */
         case "createnewticketservicenow":
@@ -143,7 +135,7 @@ app.get('/', function (req, response, next) {
                 response.send(JSON.stringify({ "fulfillmentText": "Your ticket number: " + ticketnuber + " is updated successfully with urgency " + geturgency }));
             }); 
             break;
-		case "tktlist":
+			 case "tktlist":
             const fieldsdata = [
                 'number',
                 'short_description',
@@ -160,39 +152,16 @@ app.get('/', function (req, response, next) {
             ];
 
             ServiceNow.getTableData(fieldsdata, filtersdata, 'incident', res => {
-                console.log("data", res)
-                ress = res;
-
-                var resp1 = "";
-
-                response.setHeader('Content-Type', 'text/html');
-                for (var i = 0; i < ress.length; i++) {
-                 //   console.log("data is here", ress[i].number +"  && urgency is "+ ress[i].incident_state);
-				   // slack.send({				  
-					//	channel: 'azure',
-                      //  text:  'Ticket Number '+ress[i].number + " status is " +ress[i].incident_state 
-                        
-                    resp1+="Ticket number: " + ress[i].number + "  && urgency is " + ress[i].incident_state + " ";
-
-                    //console.log(resp1);
-                    //response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));                        
-                    //response.write(JSON.stringify({ "fulfillmentText": "Ticket number: " + ress[i].number + " and urgency " + ress[i].urgency +"/ n"}));
-                    //arrayTktList.push("Ticket number: " + res[i].number + " and urgency " + res[i].urgency +" ");
+				console.log("data", res)
+                for (var i = 0; i < res.length; i++) {
+                 console.log("data is here", res[i].number +"  && urgency is "+ res[i].incident_state);
+				 slack.send({				  
+						channel: 'azure',
+						text:  'Ticket Number '+res[i].number + " status is " +res[i].incident_state 
+					});  
+                // response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
                 }
-                //console.log(resp1);
-                response.send(resp1);
-               // response.end();
-                //response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
-                /*var arrList = JSON.stringify(arrayTktList);
-                var brk = arrList.split('~');
-                var resArray = brk.join(" <br> ");
-                console.log("<br><br>"+resArray);*/
-                //response.send(JSON.stringify(resArray));
-                /*slack.send({				  
-                    channel: 'azure',
-                    text:  arrayTktList
-                });  
-                response.send(JSON.stringify(arrayTktList));*/
+
             });
             break;
 			
