@@ -24,11 +24,7 @@ const ServiceNow = new sn('dev54863', 'indus_user', 'Demo*123');
 /** end connection  from servicenow*/
 
 /**pass incoming webhook to send messege to slack from azure */
-<<<<<<< HEAD
 var MY_SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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";
-=======
-var MY_SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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";
->>>>>>> aa8cd6208064568549ec8bbadefb3b94ff9fdb7e
 var slack = require('slack-notify')(MY_SLACK_WEBHOOK_URL);
 
 
@@ -157,6 +153,7 @@ app.post('/snow', function (req, response) {
 
             ServiceNow.getTableData(fieldsdata, filtersdata, 'incident', res => {
 				console.log("data", res)
+				response.setHeader('Content-Type', 'text/plain');
                 for (var i = 0; i < res.length; i++) {
                  console.log("data is here", res[i].number +"  && urgency is "+ res[i].incident_state);
 				 slack.send({				  
@@ -164,7 +161,9 @@ app.post('/snow', function (req, response) {
 						text:  'Ticket Number '+res[i].number + " status is " +res[i].incident_state 
 					});  
                 // response.send(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
+				response.write(JSON.stringify({ "fulfillmentText": "Ticket number: " + res[i].number + " and urgency " + res[i].urgency +"/ n"}));
                 }
+				response.end();
 
             });
             break;
